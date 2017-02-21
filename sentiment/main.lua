@@ -34,6 +34,9 @@ elseif args.model == 'lstm' then
 elseif args.model == 'bilstm' then
   model_name = 'Bidirectional LSTM'
   model_class = treelstm.LSTMSentiment
+elseif args.model == 'rnn' then
+  model_name = 'Recursive Neural Network'
+  model_class = treelstm.TreeLSTMSentiment
 end
 model_structure = args.model
 header(model_name .. ' for Sentiment Classification')
