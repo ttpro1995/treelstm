@@ -105,9 +105,7 @@ best_dev_model = loaded
 
 sentence_index = 6
 
-s_sent = test_dataset.sents[sentence_index]
-s_tree = test_dataset.trees[sentence_index]
-prediction = best_dev_model:predict(s_tree, s_sent)
+
 
 function print_tree_output(tree, level)
   -- print root first
@@ -125,6 +123,15 @@ function print_tree_output(tree, level)
   end
 end
 
-print_tree_output(s_tree, 0)
-sent = nums_to_sentence(s_sent, vocab)
-print(sent)
+function print_tree_sent(sentence_index)
+
+  s_sent = test_dataset.sents[sentence_index]
+  s_tree = test_dataset.trees[sentence_index]
+  prediction = best_dev_model:predict(s_tree, s_sent)
+
+  print_tree_output(s_tree, 0)
+  sent = nums_to_sentence(s_sent, vocab)
+  print(sent)
+end
+
+print_tree_sent(sentence_index) 
