@@ -22,6 +22,27 @@ function nums_to_sentence(input_nums, vocab)
   return sent
 end
 
+function getAllData(t, prevData)
+  -- if prevData == nil, start empty, otherwise start with prevData
+  local data = prevData or {}
+
+  -- copy all the attributes from t
+  for k,v in pairs(t) do
+    data[k] = data[k] or v
+  end
+
+  -- get t's metatable, or exit if not existing
+  local mt = getmetatable(t)
+  if type(mt)~='table' then return data end
+
+  -- get the __index from mt, or exit if not table
+  local index = mt.__index
+  if type(index)~='table' then return data end
+
+  -- include the data from index into data, recursively, and return
+  return getAllData(index, data)
+end
+
 function accuracy_print_error(pred, gold, nums_sent, vocab)
   correct_index = torch.eq(pred, gold)
   for i = 1, correct_index:size(1) do
@@ -68,7 +89,7 @@ print('loading datasets')
 local test_dir = data_dir .. 'test/'
 local dev_dir = data_dir .. 'dev/'
 local dependency = (args.model == 'dependency')
-local test_dataset = treelstm.read_sentiment_dataset(dev_dir, vocab, fine_grained, dependency)
+test_dataset = treelstm.read_sentiment_dataset(dev_dir, vocab, fine_grained, dependency)
 
 
 printf('num test  = %d\n', test_dataset.size)
@@ -76,6 +97,6 @@ printf('num test  = %d\n', test_dataset.size)
 -- evaluate
 header('Evaluating on test set')
 best_dev_model = loaded
-local test_predictions = best_dev_model:predict_dataset(test_dataset)
-printf('-- test score: %.4f\n', accuracy(test_predictions, test_dataset.labels))
-accuracy_print_error(test_predictions, test_dataset.labels, test_dataset.sents, test_dataset.vocab)
+s_sent = test_dataset.sents[1]
+s_tree = test_dataset.trees[1]
+prediction = best_dev_model:predict(s_tree, s_sent)
