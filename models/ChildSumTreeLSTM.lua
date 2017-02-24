@@ -131,7 +131,7 @@ function ChildSumTreeLSTM:clean(tree)
   self:free_module(tree, 'composer')
   self:free_module(tree, 'output_module')
   tree.state = nil
-  tree.output = nil
+  -- tree.output = nil
   for i = 1, tree.num_children do
     self:clean(tree.children[i])
   end

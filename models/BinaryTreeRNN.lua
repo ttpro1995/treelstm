@@ -104,7 +104,7 @@ function BinaryTreeRNN:_backward(tree, inputs, grad, grad_inputs)
     --output_grad from error born only at tree.output
     --grad_inputs is saved at each leaf so that can probagate to word embed
     local output_grad = self.mem_zeros
-    if tree.output ~= nil and tree.gold_label ~= nil then 
+    if tree.output ~= nil and tree.gold_label ~= nil then
         output_grad = tree.output_module:backward(tree.state, self.criterion:backward(tree.output, tree.gold_label))
     end
     self:free_module(tree, 'output_module')
@@ -171,7 +171,7 @@ end
 
 function BinaryTreeRNN:clean(tree)
     tree.state = nil
-    tree.output = nil
+    -- tree.output = nil
     self:free_module(tree, 'leaf_module')
     self:free_module(tree, 'composer')
     self:free_module(tree, 'output_module')

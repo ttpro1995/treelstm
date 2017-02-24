@@ -200,7 +200,7 @@ end
 
 function BinaryTreeLSTM:clean(tree)
   tree.state = nil
-  tree.output = nil
+  --- tree.output = nil keep output
   self:free_module(tree, 'leaf_module')
   self:free_module(tree, 'composer')
   self:free_module(tree, 'output_module')

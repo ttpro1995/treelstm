@@ -89,7 +89,7 @@ print('loading datasets')
 local test_dir = data_dir .. 'test/'
 local dev_dir = data_dir .. 'dev/'
 local dependency = (args.model == 'dependency')
-test_dataset = treelstm.read_sentiment_dataset(dev_dir, vocab, fine_grained, dependency)
+test_dataset = treelstm.read_sentiment_dataset(test_dir, vocab, fine_grained, dependency)
 
 
 printf('num test  = %d\n', test_dataset.size)
@@ -97,6 +97,34 @@ printf('num test  = %d\n', test_dataset.size)
 -- evaluate
 header('Evaluating on test set')
 best_dev_model = loaded
-s_sent = test_dataset.sents[1]
-s_tree = test_dataset.trees[1]
+
+
+---------------------------------------------------------------------USE THE CODE FROM HERE ___________________________________________
+---------------------RUN meow_script.sh ----------------------------------------------------
+
+
+sentence_index = 6
+
+s_sent = test_dataset.sents[sentence_index]
+s_tree = test_dataset.trees[sentence_index]
 prediction = best_dev_model:predict(s_tree, s_sent)
+
+function print_tree_output(tree, level)
+  -- print root first
+  output = tree.output
+  prediction = (output[1] > output[3]) and 1 or 3
+  indent = ''
+  for i = 0, level do
+    indent = indent ..'  '
+  end
+  print(indent..prediction)
+
+  -- recursively print child of that root
+  for i = 1, #tree.children do
+    print_tree_output(tree.children[i], level+1)
+  end
+end
+
+print_tree_output(s_tree, 0)
+sent = nums_to_sentence(s_sent, vocab)
+print(sent)
