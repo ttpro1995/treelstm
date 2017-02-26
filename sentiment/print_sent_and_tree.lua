@@ -33,7 +33,11 @@ function print_tree_output(tree, level)
   for i = 0, level do
     indent = indent ..'  '
   end
-  print(indent..prediction)
+  if tree ~= nil and tree.num_children == 0 then
+    print(indent..prediction..' '..words[tree.leaf_idx])
+  else
+    print(indent..prediction)
+  end
 
   -- recursively print child of that root
   for i = 1, #tree.children do
@@ -46,9 +50,20 @@ function print_tree_sent(sentence_index)
   s_sent = test_dataset.sents[sentence_index]
   s_tree = test_dataset.trees[sentence_index]
   prediction = best_dev_model:predict(s_tree, s_sent)
-
+  words = nums_to_words(s_sent, vocab)
   print_tree_output(s_tree, 0)
 
+end
+
+function nums_to_words(input_nums, vocab)
+  --input_nums: dataset.sents[index]
+  --vocab : dataset.vocab
+
+  words = {}
+  for i = 1, input_nums:size(1) do
+    table.insert(words, vocab:token(input_nums[i]))
+  end
+  return words
 end
 
 
@@ -94,7 +109,7 @@ local fine_grained = not args.binary
 local data_dir = 'data/sst/'
 
 -- load vocab
-local vocab = treelstm.Vocab(data_dir .. 'vocab-cased.txt')
+vocab = treelstm.Vocab(data_dir .. 'vocab-cased.txt')
 
 print('loading datasets')
 local test_dir = data_dir .. 'test/'

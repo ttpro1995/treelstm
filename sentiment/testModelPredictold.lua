@@ -11,17 +11,6 @@ function accuracy(pred, gold)
   return torch.eq(pred, gold):sum() / pred:size(1)
 end
 
-function nums_to_words(input_nums, vocab)
-  --input_nums: dataset.sents[index]
-  --vocab : dataset.vocab
-
-  words = {}
-  for i = 1, input_nums:size(1) do
-    table.insert(words, vocab:token(input_nums[i]))
-  end
-  return words
-end
-
 function nums_to_sentence(input_nums, vocab)
   --input_nums: dataset.sents[index]
   --vocab : dataset.vocab
@@ -80,16 +69,10 @@ Training script for sentiment classification on the SST dataset.
   -b,--binary                        Train and evaluate on binary sub-task
 ]]
 
-args.model = "constituency"
-args.binary = true
-args.epochs = 1
-
-
 local model_name, model_class, model_structure
 model_name = 'Constituency Tree LSTM'
 model_class = treelstm.TreeLSTMSentiment
-local loaded = model_class.load("/media/vdvinh/25A1FEDE380BDADA/thien_code/treelstm/trained_models/sent-constituency.2class.1l.150d.1.th")
-print("11111")
+local loaded = model_class.load("./trained_models/sent-constituency.2class.1l.150d.1.th")
 model_structure = args.model
 header(model_name .. ' for Sentiment Classification')
 
@@ -120,12 +103,9 @@ best_dev_model = loaded
 ---------------------RUN meow_script.sh ----------------------------------------------------
 
 
-sentence_index = 101
+sentence_index = 6
 
-s_sent = test_dataset.sents[sentence_index]
-s_tree = test_dataset.trees[sentence_index]
-words = nums_to_words(s_sent, vocab)
-prediction = best_dev_model:predict(s_tree, s_sent)
+
 
 function print_tree_output(tree, level)
   -- print root first
@@ -135,11 +115,7 @@ function print_tree_output(tree, level)
   for i = 0, level do
     indent = indent ..'  '
   end
-  if tree ~= nil and tree.num_children == 0 then
-    print(indent..prediction..' '..words[tree.leaf_idx])
-  else
-    print(indent..prediction)
-  end
+  print(indent..prediction)
 
   -- recursively print child of that root
   for i = 1, #tree.children do
@@ -147,6 +123,15 @@ function print_tree_output(tree, level)
   end
 end
 
-print_tree_output(s_tree, 0)
-sent = nums_to_sentence(s_sent, vocab)
-print(sent)
+function print_tree_sent(sentence_index)
+
+  s_sent = test_dataset.sents[sentence_index]
+  s_tree = test_dataset.trees[sentence_index]
+  prediction = best_dev_model:predict(s_tree, s_sent)
+
+  print_tree_output(s_tree, 0)
+  sent = nums_to_sentence(s_sent, vocab)
+  print(sent)
+end
+
+print_tree_sent(sentence_index) 
