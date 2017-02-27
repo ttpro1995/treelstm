@@ -11,22 +11,6 @@ function accuracy(pred, gold)
   return torch.eq(pred, gold):sum() / pred:size(1)
 end
 
-function mostlikely(output)
-  if (output[1] >= output[3]) and  (output[1] >= output[2]) then
-    return 1
-  end
-  if (output[2] >= output[3]) and  (output[2] >= output[1]) then
-    return 2
-  end
-  if (output[3] >= output[1]) and  (output[3] >= output[2]) then
-    return 3
-  end
-end
-
-function round(num, numDecimalPlaces)
-  return tonumber(string.format("%." .. (numDecimalPlaces or 0) .. "f", num))
-end
-
 function nums_to_words(input_nums, vocab)
   --input_nums: dataset.sents[index]
   --vocab : dataset.vocab
@@ -136,28 +120,25 @@ best_dev_model = loaded
 ---------------------RUN meow_script.sh ----------------------------------------------------
 
 
-sentence_index = 6
+sentence_index = 101
 
 s_sent = test_dataset.sents[sentence_index]
 s_tree = test_dataset.trees[sentence_index]
 words = nums_to_words(s_sent, vocab)
 prediction = best_dev_model:predict(s_tree, s_sent)
 
-
 function print_tree_output(tree, level)
   -- print root first
   output = tree.output
-  prediction = mostlikely(output)
-  confident = output[prediction]
-  confident = round(confident,2)
+  prediction = (output[1] > output[3]) and 1 or 3
   indent = ''
   for i = 0, level do
     indent = indent ..'  '
   end
   if tree ~= nil and tree.num_children == 0 then
-    print(indent..prediction..'('..round(output[1],1)..', '..round(output[2],1)..', '..round(output[3],1)..')'..' '..words[tree.leaf_idx])
+    print(indent..prediction..' '..words[tree.leaf_idx])
   else
-    print(indent..prediction..'('..round(output[1],1)..', '..round(output[2],1)..', '..round(output[3],1)..')' )
+    print(indent..prediction)
   end
 
   -- recursively print child of that root
@@ -168,9 +149,4 @@ end
 
 print_tree_output(s_tree, 0)
 sent = nums_to_sentence(s_sent, vocab)
-print ('1 : '..round(s_tree.output[1],2))
-print ('2 : '..round(s_tree.output[2],2))
-print ('3 : '..round(s_tree.output[3],2))
-pred = (s_tree.output[1] > s_tree.output[3]) and 1 or 3
-print ('PREDICT : '..pred)
 print(sent)

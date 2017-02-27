@@ -11,6 +11,23 @@ function accuracy(pred, gold)
   return torch.eq(pred, gold):sum() / pred:size(1)
 end
 
+function mostlikely(output)
+  if (output[1] >= output[3]) and  (output[1] >= output[2]) then
+    return 1
+  end
+  if (output[2] >= output[3]) and  (output[2] >= output[1]) then
+    return 2
+  end
+  if (output[3] >= output[1]) and  (output[3] >= output[2]) then
+    return 3
+  end
+end
+
+function round(num, numDecimalPlaces)
+  return tonumber(string.format("%." .. (numDecimalPlaces or 0) .. "f", num))
+end
+
+
 function nums_to_sentence(input_nums, vocab)
   --input_nums: dataset.sents[index]
   --vocab : dataset.vocab
@@ -28,15 +45,18 @@ sentence_index = 6
 function print_tree_output(tree, level)
   -- print root first
   output = tree.output
-  prediction = (output[1] > output[3]) and 1 or 3
+  prediction = mostlikely(output)
+  confident = output[prediction]
+  confident = round(confident,2)
+
   indent = ''
   for i = 0, level do
     indent = indent ..'  '
   end
   if tree ~= nil and tree.num_children == 0 then
-    print(indent..prediction..' '..words[tree.leaf_idx])
+    print(indent..prediction..'('..round(output[1],1)..', '..round(output[2],1)..', '..round(output[3],1)..')'..' '..words[tree.leaf_idx])
   else
-    print(indent..prediction)
+    print(indent..prediction..'('..round(output[1],1)..', '..round(output[2],1)..', '..round(output[3],1)..')' )
   end
 
   -- recursively print child of that root
@@ -78,6 +98,10 @@ function accuracy_print_error(pred, gold, nums_sent, vocab)
       gold_i = gold[i]
       print_tree_sent(i)
       sent = sent .. ' '.. pred_i .. ' '.. gold_i .. ' ' .. nums_to_sentence(incorrect_num_sent, vocab)
+      print ('1 : '..round(s_tree.output[1],2))
+      print ('2 : '..round(s_tree.output[2],2))
+      print ('3 : '..round(s_tree.output[3],2))
+      print ('PREDICT : '..pred_i)
       print (sent)
       print('------------------------------------------------------------------------------------------')
     end
@@ -126,3 +150,5 @@ best_dev_model = loaded
 local test_predictions = best_dev_model:predict_dataset(test_dataset)
 printf('-- test score: %.4f\n', accuracy(test_predictions, test_dataset.labels))
 accuracy_print_error(test_predictions, test_dataset.labels, test_dataset.sents, test_dataset.vocab)
+
+-- print_tree_sent(5)
