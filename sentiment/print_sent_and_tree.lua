@@ -89,7 +89,9 @@ end
 
 function accuracy_print_error(pred, gold, nums_sent, vocab)
   correct_index = torch.eq(pred, gold)
-  for i = 1, correct_index:size(1) do
+  max = correct_index:size(1)
+  -- max = 500
+  for i = 1, max do
     t = correct_index[i]
     if t == 0 then
       incorrect_num_sent = nums_sent[i]
